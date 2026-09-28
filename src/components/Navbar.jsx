@@ -16,7 +16,7 @@ export default function Navbar() {
         {/* Brand Logo & Title */}
         <Link to="/" className="flex items-center space-x-3 group">
           <img 
-            src="/logo.svg" 
+            src="/logo.png" 
             alt="CSI KARE" 
             className="w-10 h-10 object-contain drop-shadow-sm group-hover:scale-105 transition-transform shrink-0" 
           />

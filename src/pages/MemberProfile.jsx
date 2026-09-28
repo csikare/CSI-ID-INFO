@@ -172,9 +172,9 @@ export default function MemberProfile() {
 
             <div className="flex items-center justify-center space-x-3 mb-2">
               <img 
-                src="/logo.svg" 
+                src="/logo.png" 
                 alt="CSI KARE Logo" 
-                className="w-11 h-11 sm:w-12 sm:h-12 object-contain drop-shadow-sm shrink-0" 
+                className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-sm shrink-0" 
               />
               <div className="text-left">
                 <h2 className="font-heading font-extrabold text-lg sm:text-xl tracking-wider text-[#580B1C] dark:text-[#FCE7EB] leading-none">
