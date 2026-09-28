@@ -1,6 +1,16 @@
+import { 
+  collection, 
+  doc, 
+  getDoc, 
+  getDocs, 
+  setDoc, 
+  deleteDoc,
+  writeBatch 
+} from 'firebase/firestore';
+import { db, isFirebaseConfigured } from '../config/firebase';
 import { INITIAL_MEMBERS } from '../data/initialMembers';
 
-const LOCAL_STORAGE_KEY = 'csi_kare_members_dynamic_v1';
+const LOCAL_STORAGE_KEY = 'csi_kare_members_cache_v2';
 
 // Helper to get local fallback storage
 const getLocalMembers = () => {
@@ -25,55 +35,68 @@ const saveLocalMembers = (members) => {
   try {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(members));
   } catch (err) {
-    console.error('Error writing to localStorage:', err);
+    console.error('Error writing to localStorage cache:', err);
   }
 };
 
 /**
  * Fetch a single member dynamically by ID (e.g., CSI26-001, CSI26-081, CSI26-999)
+ * Directly from Firebase Firestore
  */
 export async function getMemberById(memberId) {
   if (!memberId) return null;
   const formattedId = memberId.trim().toUpperCase();
 
-  // Try Server/Firestore API endpoint
-  try {
-    const res = await fetch(`/api/members/${formattedId}`);
-    if (res.ok) {
-      const data = await res.json();
-      return data;
-    }
-    if (res.status === 404) {
+  // 1. Query Firestore directly
+  if (isFirebaseConfigured && db) {
+    try {
+      const docRef = doc(db, 'members', formattedId);
+      const snapshot = await getDoc(docRef);
+      if (snapshot.exists()) {
+        const data = { id: snapshot.id, ...snapshot.data() };
+        // Update local cache
+        const localList = getLocalMembers();
+        const idx = localList.findIndex(m => m.memberId?.toUpperCase() === formattedId);
+        if (idx !== -1) localList[idx] = data;
+        else localList.push(data);
+        saveLocalMembers(localList);
+        return data;
+      }
+      // If doc does not exist in Firestore
       return null;
+    } catch (err) {
+      console.warn('Firestore getMemberById error (falling back to local cache):', err);
     }
-  } catch (err) {
-    // API endpoint offline or static build, use local cache
   }
 
-  // Local fallback
+  // 2. Fallback to local cache
   const localList = getLocalMembers();
-  const match = localList.find((m) => m.memberId.toUpperCase() === formattedId);
+  const match = localList.find((m) => m.memberId?.toUpperCase() === formattedId);
   return match || null;
 }
 
 /**
  * Fetch all members dynamically (no hardcoded limits)
+ * Directly from Firebase Firestore
  */
 export async function getAllMembers() {
-  // Try Server/Firestore API endpoint
-  try {
-    const res = await fetch('/api/members');
-    if (res.ok) {
-      const list = await res.json();
-      if (Array.isArray(list) && list.length > 0) {
+  // 1. Query Firestore directly
+  if (isFirebaseConfigured && db) {
+    try {
+      const colRef = collection(db, 'members');
+      const snapshot = await getDocs(colRef);
+      if (!snapshot.empty) {
+        const list = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        list.sort((a, b) => (a.memberId || '').localeCompare(b.memberId || '', undefined, { numeric: true }));
         saveLocalMembers(list);
         return list;
       }
+    } catch (err) {
+      console.warn('Firestore getAllMembers error (falling back to local cache):', err);
     }
-  } catch (err) {
-    // API endpoint offline or static build
   }
 
+  // 2. Fallback to local cache
   const localList = getLocalMembers();
   localList.sort((a, b) => (a.memberId || '').localeCompare(b.memberId || '', undefined, { numeric: true }));
   return localList;
@@ -104,26 +127,17 @@ export async function createMember(memberData) {
     updatedAt: now,
   };
 
-  // 1. Save to Firestore via Admin API
-  try {
-    const res = await fetch('/api/members', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newRecord),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      // Update local cache
-      const localList = getLocalMembers();
-      localList.push(data);
-      saveLocalMembers(localList);
-      return data;
+  // 1. Write to Firestore directly
+  if (isFirebaseConfigured && db) {
+    try {
+      const docRef = doc(db, 'members', formattedId);
+      await setDoc(docRef, newRecord);
+    } catch (err) {
+      console.error('Firestore create error:', err);
     }
-  } catch (err) {
-    console.warn('API create note (using local cache):', err);
   }
 
-  // 2. Guaranteed local save
+  // 2. Update local cache
   const localList = getLocalMembers();
   const existsLocal = localList.findIndex((m) => m.memberId.toUpperCase() === formattedId);
   if (existsLocal !== -1) {
@@ -148,31 +162,17 @@ export async function updateMember(memberId, updatedFields) {
     updatedAt: new Date().toISOString(),
   };
 
-  // 1. Update Firestore via Admin API
-  try {
-    const res = await fetch(`/api/members/${formattedId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      // Update local cache
-      const localList = getLocalMembers();
-      const index = localList.findIndex((m) => m.memberId.toUpperCase() === formattedId);
-      if (index !== -1) {
-        localList[index] = { ...localList[index], ...data };
-      } else {
-        localList.push(data);
-      }
-      saveLocalMembers(localList);
-      return data;
+  // 1. Write to Firestore directly
+  if (isFirebaseConfigured && db) {
+    try {
+      const docRef = doc(db, 'members', formattedId);
+      await setDoc(docRef, payload, { merge: true });
+    } catch (err) {
+      console.error('Firestore update error:', err);
     }
-  } catch (err) {
-    console.warn('API update note (using local cache):', err);
   }
 
-  // 2. Guaranteed local save
+  // 2. Update local cache
   const localList = getLocalMembers();
   const index = localList.findIndex((m) => m.memberId.toUpperCase() === formattedId);
   if (index !== -1) {
@@ -192,11 +192,14 @@ export async function deleteMember(memberId) {
   if (!memberId) throw new Error('Member ID is required.');
   const formattedId = memberId.trim().toUpperCase();
 
-  // 1. Delete in Firestore via API
-  try {
-    await fetch(`/api/members/${formattedId}`, { method: 'DELETE' });
-  } catch (err) {
-    console.warn('API delete note:', err);
+  // 1. Delete from Firestore directly
+  if (isFirebaseConfigured && db) {
+    try {
+      const docRef = doc(db, 'members', formattedId);
+      await deleteDoc(docRef);
+    } catch (err) {
+      console.error('Firestore delete error:', err);
+    }
   }
 
   // 2. Update local cache
@@ -230,6 +233,18 @@ export function getNextSuggestedMemberId(members = []) {
  * Seed initial 80 members if database is fresh
  */
 export async function seedInitial80Members(force = false) {
-  const localList = getLocalMembers();
-  return { count: localList.length, target: 'firestore' };
+  if (isFirebaseConfigured && db) {
+    try {
+      const batch = writeBatch(db);
+      for (const member of INITIAL_MEMBERS) {
+        const docRef = doc(db, 'members', member.memberId);
+        batch.set(docRef, member, { merge: true });
+      }
+      await batch.commit();
+    } catch (err) {
+      console.error('Firestore batch seed error:', err);
+    }
+  }
+  saveLocalMembers(INITIAL_MEMBERS);
+  return { count: INITIAL_MEMBERS.length, target: 'firestore' };
 }
