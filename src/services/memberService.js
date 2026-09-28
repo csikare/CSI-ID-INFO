@@ -9,6 +9,7 @@ import {
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '../config/firebase';
 import { INITIAL_MEMBERS } from '../data/initialMembers';
+import { ensureSmallPhotoUrl } from './cloudinaryService';
 
 const LOCAL_STORAGE_KEY = 'csi_kare_members_cache_v2';
 
@@ -112,6 +113,7 @@ export async function createMember(memberData) {
 
   const formattedId = memberData.memberId.trim().toUpperCase();
   const now = new Date().toISOString();
+  const safePhotoUrl = await ensureSmallPhotoUrl(memberData.photoUrl || '');
 
   const newRecord = {
     memberId: formattedId,
@@ -120,7 +122,7 @@ export async function createMember(memberData) {
     year: memberData.year || '2nd Year',
     department: memberData.department || 'CSE (AIML) | KARE',
     quote: memberData.quote || '',
-    photoUrl: memberData.photoUrl || '',
+    photoUrl: safePhotoUrl,
     photoScale: typeof memberData.photoScale === 'number' ? memberData.photoScale : 1,
     photoPosX: typeof memberData.photoPosX === 'number' ? memberData.photoPosX : 0,
     photoPosY: typeof memberData.photoPosY === 'number' ? memberData.photoPosY : 0,
@@ -162,8 +164,14 @@ export async function createMember(memberData) {
 export async function updateMember(memberId, updatedFields) {
   if (!memberId) throw new Error('Member ID is required.');
   const formattedId = memberId.trim().toUpperCase();
+  
+  let safeUpdatedFields = { ...updatedFields };
+  if (updatedFields.photoUrl) {
+    safeUpdatedFields.photoUrl = await ensureSmallPhotoUrl(updatedFields.photoUrl);
+  }
+
   const payload = {
-    ...updatedFields,
+    ...safeUpdatedFields,
     memberId: formattedId,
     updatedAt: new Date().toISOString(),
   };

@@ -18,7 +18,7 @@ import {
   Sliders
 } from 'lucide-react';
 import { InstagramIcon, LinkedinIcon } from './BrandIcons';
-import { uploadImageToCloudinary } from '../services/cloudinaryService';
+import { uploadImageToCloudinary, ensureSmallPhotoUrl } from '../services/cloudinaryService';
 
 const YEAR_OPTIONS = [
   "2nd Year",
@@ -176,8 +176,10 @@ export default function EditMemberModal({
 
     setSaving(true);
     try {
+      const safePhotoUrl = await ensureSmallPhotoUrl(formData.photoUrl);
       await onSave({
         ...formData,
+        photoUrl: safePhotoUrl,
         memberId: formData.memberId.trim().toUpperCase(),
       });
       onClose();
