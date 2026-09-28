@@ -98,9 +98,9 @@ export async function ensureSmallPhotoUrl(photoUrl) {
 }
 
 /**
- * Upload an image file to Cloudinary with compressed fallback
+ * Upload an image file directly to Cloudinary
  * @param {File} file 
- * @returns {Promise<string>} Secure URL of the uploaded image
+ * @returns {Promise<string>} Secure HTTPS URL from Cloudinary
  */
 export async function uploadImageToCloudinary(file) {
   if (!file) {
@@ -114,8 +114,9 @@ export async function uploadImageToCloudinary(file) {
 
   const timestamp = Math.round(new Date().getTime() / 1000);
   const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+  let lastErrorMsg = '';
 
-  // Attempt 1: Signed direct upload if API Key and Secret are available
+  // Attempt 1: Signed upload
   if (CLOUD_NAME && API_KEY && API_SECRET) {
     try {
       const folder = 'csi_kare_members';
@@ -141,18 +142,22 @@ export async function uploadImageToCloudinary(file) {
           secureUrl = secureUrl.replace('/upload/', '/upload/c_fill,g_face,w_800,h_1000,q_auto,f_auto/');
         }
         return secureUrl || data.secure_url;
+      } else {
+        const errJson = await response.json().catch(() => ({}));
+        lastErrorMsg = errJson.error?.message || response.statusText;
       }
     } catch (err) {
-      console.warn('Signed upload attempt failed, checking fallback:', err);
+      lastErrorMsg = err.message;
     }
   }
 
-  // Attempt 2: Unsigned preset upload
-  if (CLOUD_NAME && UPLOAD_PRESET) {
+  // Attempt 2: Unsigned preset upload (trying configured preset, then common fallbacks)
+  const presetsToTry = [UPLOAD_PRESET, 'CSI-ID-INFO', 'ml_default', 'unsigned'].filter(Boolean);
+  for (const preset of presetsToTry) {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', UPLOAD_PRESET);
+      formData.append('upload_preset', preset);
 
       const response = await fetch(uploadUrl, {
         method: 'POST',
@@ -166,22 +171,17 @@ export async function uploadImageToCloudinary(file) {
           secureUrl = secureUrl.replace('/upload/', '/upload/c_fill,g_face,w_800,h_1000,q_auto,f_auto/');
         }
         return secureUrl || data.secure_url;
+      } else {
+        const errJson = await response.json().catch(() => ({}));
+        lastErrorMsg = errJson.error?.message || response.statusText;
       }
     } catch (err) {
-      console.warn('Unsigned upload failed, falling back to optimized compression:', err);
+      lastErrorMsg = err.message;
     }
   }
 
-  // Attempt 3: High-efficiency compressed WebP/JPEG data URL (<100KB, guaranteed Firestore compatibility)
-  try {
-    const compressedDataUrl = await compressImageToDataUrl(file, 800, 1000, 0.8);
-    return compressedDataUrl;
-  } catch (err) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (e) => reject(new Error('Failed to read image: ' + e.message));
-      reader.readAsDataURL(file);
-    });
-  }
+  // If Cloudinary rejects, throw an informative error so the admin knows exactly how to configure the upload preset
+  throw new Error(
+    `Cloudinary upload error (${lastErrorMsg || 'Upload failed'}). Please create an Unsigned Upload Preset named '${UPLOAD_PRESET}' in your Cloudinary Dashboard under Settings -> Upload -> Upload presets.`
+  );
 }
