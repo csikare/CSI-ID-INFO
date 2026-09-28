@@ -10,7 +10,12 @@ import {
   Phone, 
   Sparkles,
   Quote as QuoteIcon,
-  GraduationCap
+  GraduationCap,
+  ZoomIn,
+  MoveHorizontal,
+  MoveVertical,
+  RotateCcw,
+  Sliders
 } from 'lucide-react';
 import { InstagramIcon, LinkedinIcon } from './BrandIcons';
 import { uploadImageToCloudinary } from '../services/cloudinaryService';
@@ -53,6 +58,9 @@ export default function EditMemberModal({
     department: 'CSE (AIML) | KARE',
     quote: '',
     photoUrl: '',
+    photoScale: 1,
+    photoPosX: 0,
+    photoPosY: 0,
     instagram: '',
     linkedin: '',
     email: '',
@@ -74,6 +82,9 @@ export default function EditMemberModal({
         department: member.department || 'CSE (AIML) | KARE',
         quote: member.quote || '',
         photoUrl: member.photoUrl || '',
+        photoScale: typeof member.photoScale === 'number' ? member.photoScale : 1,
+        photoPosX: typeof member.photoPosX === 'number' ? member.photoPosX : 0,
+        photoPosY: typeof member.photoPosY === 'number' ? member.photoPosY : 0,
         instagram: member.instagram || '',
         linkedin: member.linkedin || '',
         email: member.email || '',
@@ -88,6 +99,9 @@ export default function EditMemberModal({
         department: 'CSE | KARE',
         quote: '',
         photoUrl: '',
+        photoScale: 1,
+        photoPosX: 0,
+        photoPosY: 0,
         instagram: '',
         linkedin: '',
         email: '',
@@ -102,6 +116,19 @@ export default function EditMemberModal({
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePositionChange = (field, val) => {
+    setFormData((prev) => ({ ...prev, [field]: parseFloat(val) }));
+  };
+
+  const handleResetPosition = () => {
+    setFormData((prev) => ({
+      ...prev,
+      photoScale: 1,
+      photoPosX: 0,
+      photoPosY: 0,
+    }));
   };
 
   const handlePhotoUpload = async (e) => {
@@ -122,7 +149,13 @@ export default function EditMemberModal({
   };
 
   const handleRemovePhoto = () => {
-    setFormData((prev) => ({ ...prev, photoUrl: '' }));
+    setFormData((prev) => ({ 
+      ...prev, 
+      photoUrl: '',
+      photoScale: 1,
+      photoPosX: 0,
+      photoPosY: 0
+    }));
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -193,30 +226,62 @@ export default function EditMemberModal({
 
         <form onSubmit={handleSubmit} className="space-y-6">
           
-          {/* Full-Length Photo Upload Section */}
-          <div className="p-4 rounded-2xl bg-[#FFF5F7] border border-[#F4CCD5] dark:bg-[#2E040D]/60 dark:border-[#580B1C]">
-            <label className="block text-xs font-semibold font-heading text-[#580B1C] uppercase tracking-wider mb-3 dark:text-[#E8A5B3]">
-              Full-Length Portrait Photo
-            </label>
-            <div className="flex items-center space-x-4">
-              <div className="relative w-20 h-24 rounded-xl overflow-hidden bg-white border-2 border-[#701026] flex items-center justify-center shrink-0 shadow-sm dark:bg-[#150206]">
+          {/* Full-Length Photo Upload Section & Live Preview */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#FFF5F7] border border-[#F4CCD5] dark:bg-[#2E040D]/60 dark:border-[#580B1C] space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-semibold font-heading text-[#580B1C] uppercase tracking-wider dark:text-[#E8A5B3]">
+                Full-Length Portrait Photo
+              </label>
+              {formData.photoUrl && (
+                <span className="text-[11px] font-mono text-[#701026] dark:text-[#FCE7EB] bg-white/70 dark:bg-[#3B0511] px-2 py-0.5 rounded-md border border-[#F4CCD5] dark:border-[#580B1C]">
+                  Live ID Card Preview
+                </span>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-start gap-5">
+              
+              {/* 4:5 Live ID Card Ratio Frame */}
+              <div className="relative w-36 sm:w-40 aspect-[4/5] rounded-2xl overflow-hidden bg-white border-2 border-[#701026] flex items-center justify-center shrink-0 shadow-md dark:bg-[#150206]">
+                {/* Corner Frame Accents */}
+                <div className="absolute top-1.5 left-1.5 w-3 h-3 border-t-2 border-l-2 border-[#701026] z-10 pointer-events-none" />
+                <div className="absolute top-1.5 right-1.5 w-3 h-3 border-t-2 border-r-2 border-[#701026] z-10 pointer-events-none" />
+                <div className="absolute bottom-1.5 left-1.5 w-3 h-3 border-b-2 border-l-2 border-[#701026] z-10 pointer-events-none" />
+                <div className="absolute bottom-1.5 right-1.5 w-3 h-3 border-b-2 border-r-2 border-[#701026] z-10 pointer-events-none" />
+
                 {formData.photoUrl ? (
                   <img
                     src={formData.photoUrl}
                     alt="Preview"
-                    className="w-full h-full object-cover object-top"
+                    style={{
+                      transform: `scale(${formData.photoScale || 1}) translate(${formData.photoPosX || 0}%, ${formData.photoPosY || 0}%)`,
+                      transformOrigin: 'center center',
+                    }}
+                    className="w-full h-full object-cover transition-transform duration-75"
                   />
                 ) : (
-                  <User className="w-8 h-8 text-[#881832] opacity-50" />
+                  <div className="text-center p-3 text-[#881832] opacity-60">
+                    <User className="w-10 h-10 mx-auto mb-1" />
+                    <span className="text-[10px] font-mono block">No photo</span>
+                  </div>
                 )}
+
                 {uploadingPhoto && (
-                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20">
                     <Loader2 className="w-6 h-6 text-white animate-spin" />
+                  </div>
+                )}
+
+                {/* Badge ribbon tag */}
+                {formData.photoUrl && (
+                  <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-[#580B1C]/90 text-[9px] font-mono text-white font-bold tracking-wider z-10">
+                    4:5
                   </div>
                 )}
               </div>
 
-              <div className="space-y-2 flex-1">
+              {/* Upload Controls & Sliders */}
+              <div className="space-y-3.5 flex-1 w-full">
                 <div className="flex items-center gap-2 flex-wrap">
                   <input
                     type="file"
@@ -231,7 +296,7 @@ export default function EditMemberModal({
                     className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-[#701026] hover:bg-[#580B1C] text-white text-xs font-semibold shadow-sm cursor-pointer transition-colors"
                   >
                     <Upload className="w-3.5 h-3.5" />
-                    <span>{uploadingPhoto ? 'Uploading to Cloudinary...' : 'Upload Photo'}</span>
+                    <span>{uploadingPhoto ? 'Uploading to Cloudinary...' : (formData.photoUrl ? 'Change Photo' : 'Upload Photo')}</span>
                   </label>
 
                   {formData.photoUrl && (
@@ -245,8 +310,90 @@ export default function EditMemberModal({
                     </button>
                   )}
                 </div>
+
+                {/* Photo Positioning Controls (Zoom, X, Y) */}
+                {formData.photoUrl && (
+                  <div className="p-3 bg-white dark:bg-[#1A0308] rounded-xl border border-[#F4CCD5] dark:border-[#580B1C] space-y-2.5 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-[#F4CCD5]/60 dark:border-[#580B1C] pb-1.5">
+                      <span className="text-[11px] font-heading font-bold text-[#580B1C] dark:text-[#FCE7EB] flex items-center gap-1">
+                        <Sliders className="w-3 h-3 text-[#701026] dark:text-[#E8A5B3]" />
+                        Position & Zoom Controls
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleResetPosition}
+                        className="text-[10px] font-heading font-medium text-[#701026] hover:text-[#580B1C] dark:text-[#E8A5B3] hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <RotateCcw className="w-2.5 h-2.5" />
+                        Reset
+                      </button>
+                    </div>
+
+                    {/* Zoom / Scale */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[10px] text-[#881832] dark:text-[#E8A5B3] font-medium">
+                        <span className="flex items-center gap-1">
+                          <ZoomIn className="w-3 h-3" /> Zoom
+                        </span>
+                        <span className="font-mono font-bold">{(formData.photoScale || 1).toFixed(2)}x</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.8"
+                        max="2.5"
+                        step="0.05"
+                        value={formData.photoScale ?? 1}
+                        onChange={(e) => handlePositionChange('photoScale', e.target.value)}
+                        className="w-full h-1.5 bg-[#FCE7EB] dark:bg-[#3B0511] rounded-lg appearance-none cursor-pointer accent-[#701026] dark:accent-[#E8A5B3]"
+                      />
+                    </div>
+
+                    {/* Horizontal Position (X) */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[10px] text-[#881832] dark:text-[#E8A5B3] font-medium">
+                        <span className="flex items-center gap-1">
+                          <MoveHorizontal className="w-3 h-3" /> Horizontal (X)
+                        </span>
+                        <span className="font-mono font-bold">
+                          {(formData.photoPosX || 0) > 0 ? `+${formData.photoPosX}%` : `${formData.photoPosX || 0}%`}
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="-50"
+                        max="50"
+                        step="1"
+                        value={formData.photoPosX ?? 0}
+                        onChange={(e) => handlePositionChange('photoPosX', e.target.value)}
+                        className="w-full h-1.5 bg-[#FCE7EB] dark:bg-[#3B0511] rounded-lg appearance-none cursor-pointer accent-[#701026] dark:accent-[#E8A5B3]"
+                      />
+                    </div>
+
+                    {/* Vertical Position (Y) */}
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[10px] text-[#881832] dark:text-[#E8A5B3] font-medium">
+                        <span className="flex items-center gap-1">
+                          <MoveVertical className="w-3 h-3" /> Vertical (Y)
+                        </span>
+                        <span className="font-mono font-bold">
+                          {(formData.photoPosY || 0) > 0 ? `+${formData.photoPosY}%` : `${formData.photoPosY || 0}%`}
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="-50"
+                        max="50"
+                        step="1"
+                        value={formData.photoPosY ?? 0}
+                        onChange={(e) => handlePositionChange('photoPosY', e.target.value)}
+                        className="w-full h-1.5 bg-[#FCE7EB] dark:bg-[#3B0511] rounded-lg appearance-none cursor-pointer accent-[#701026] dark:accent-[#E8A5B3]"
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <p className="text-[11px] text-[#881832] dark:text-[#E8A5B3]">
-                  Full-length / full-body portrait (4:5 ratio) looks best on the digital ID profile.
+                  Position settings are saved with the member profile and applied directly to the public card.
                 </p>
               </div>
             </div>

@@ -220,7 +220,11 @@ export default function MemberProfile() {
                   src={member.photoUrl}
                   alt={member.name}
                   loading="eager"
-                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  style={{
+                    transform: `scale(${member.photoScale || 1}) translate(${member.photoPosX || 0}%, ${member.photoPosY || 0}%)`,
+                    transformOrigin: 'center center',
+                  }}
+                  className="w-full h-full object-cover transition-transform duration-300"
                   onError={(e) => {
                     e.target.style.display = 'none';
                   }}
