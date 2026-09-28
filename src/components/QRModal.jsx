@@ -51,61 +51,61 @@ export default function QRModal({ member, isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#2E040D]/80 backdrop-blur-md animate-fade-in overflow-y-auto">
       <div 
-        className="relative w-full max-w-lg my-8 glass-card rounded-3xl p-6 sm:p-8 border border-slate-700/80 shadow-2xl text-slate-100 light:text-slate-900 light:border-slate-200"
+        className="relative w-full max-w-lg my-8 bg-white dark:bg-[#23040B] rounded-3xl p-6 sm:p-8 border border-[#F4CCD5] dark:border-[#580B1C] shadow-2xl text-[#3B0511] dark:text-[#FCE7EB]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-white bg-slate-850 hover:bg-slate-800 transition-colors cursor-pointer light:text-slate-500 light:hover:text-slate-850"
+          className="absolute top-4 right-4 p-2 rounded-full text-[#881832] hover:text-[#580B1C] bg-[#FFF5F7] hover:bg-[#FCE7EB] transition-colors cursor-pointer dark:bg-[#3B0511] dark:text-[#E8A5B3] dark:hover:text-white"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Modal Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs font-bold uppercase tracking-wider mb-2 light:bg-blue-50 light:text-blue-700">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF5F7] text-[#701026] border border-[#F4CCD5] text-xs font-bold font-heading uppercase tracking-wider mb-2 dark:bg-[#3B0511] dark:border-[#580B1C] dark:text-[#E8A5B3]">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Permanent Member QR</span>
+            <span>Permanent ID Card QR</span>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-white light:text-slate-900">
+          <h2 className="text-xl sm:text-2xl font-bold font-heading text-[#580B1C] dark:text-white">
             {member.name}
           </h2>
-          <p className="text-xs text-slate-400 light:text-slate-500">
+          <p className="text-xs text-[#881832] dark:text-[#E8A5B3]">
             {member.role} • {member.year}
           </p>
         </div>
 
         {/* Printable Card Preview Box */}
-        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-inner flex flex-col items-center justify-center text-center light:bg-slate-50 light:border-slate-300 mb-6">
+        <div className="maroon-panel rounded-2xl p-6 border border-[#F4CCD5]/30 shadow-inner flex flex-col items-center justify-center text-center mb-6">
           
-          <h3 className="text-xs font-bold tracking-wider text-blue-400 light:text-blue-600 uppercase mb-1">
+          <h3 className="text-xs font-bold font-heading tracking-wider text-white uppercase mb-1">
             CSI KARE
           </h3>
-          <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-4">
+          <p className="text-[10px] text-[#FCE7EB] font-semibold font-heading uppercase tracking-wider mb-4">
             SCAN TO VIEW PROFILE
           </p>
 
           {/* High Contrast QR Plate */}
-          <div className="p-4 bg-white rounded-2xl shadow-xl ring-4 ring-blue-500/20">
+          <div className="p-4 bg-white rounded-2xl shadow-xl ring-4 ring-[#E8A5B3]/30">
             <QRCodeSVG
               value={profileUrl}
               size={190}
               level="H"
               marginSize={1}
-              fgColor="#090d16"
+              fgColor="#580B1C"
               bgColor="#ffffff"
             />
           </div>
 
           {/* Member ID Badge */}
-          <div className="mt-4 px-4 py-1 rounded-lg bg-slate-950 border border-blue-500/40 text-xs font-mono font-bold text-blue-300 light:bg-white light:text-blue-700">
+          <div className="mt-4 px-4 py-1 rounded-lg bg-[#2E040D] border border-[#E8A5B3]/50 text-xs font-mono font-bold text-[#FCE7EB]">
             {member.memberId}
           </div>
 
-          <p className="text-[11px] font-mono text-slate-400 truncate max-w-xs mt-2 opacity-80">
+          <p className="text-[11px] font-mono text-[#F8D0D8] truncate max-w-xs mt-2 opacity-80">
             {profileUrl}
           </p>
         </div>
@@ -115,7 +115,7 @@ export default function QRModal({ member, isOpen, onClose }) {
           
           <button
             onClick={() => downloadMemberQrPng(member.memberId)}
-            className="flex items-center justify-center space-x-2 px-3.5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/20 transition-all cursor-pointer"
+            className="flex items-center justify-center space-x-2 px-3.5 py-2.5 rounded-xl bg-[#701026] hover:bg-[#580B1C] text-white text-xs font-semibold shadow-md shadow-[#701026]/20 transition-all cursor-pointer"
           >
             <ImageIcon className="w-4 h-4" />
             <span>Download PNG</span>
@@ -123,29 +123,29 @@ export default function QRModal({ member, isOpen, onClose }) {
 
           <button
             onClick={() => downloadMemberQrSvg(member.memberId)}
-            className="flex items-center justify-center space-x-2 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-all cursor-pointer light:bg-slate-100 light:text-slate-800 light:border-slate-300 light:hover:bg-slate-200"
+            className="flex items-center justify-center space-x-2 px-3.5 py-2.5 rounded-xl bg-[#FFF5F7] hover:bg-[#FCE7EB] text-[#580B1C] text-xs font-semibold border border-[#F4CCD5] transition-all cursor-pointer dark:bg-[#3B0511] dark:border-[#580B1C] dark:text-[#FCE7EB] dark:hover:bg-[#4A0716]"
           >
-            <FileCode className="w-4 h-4 text-emerald-400" />
+            <FileCode className="w-4 h-4 text-[#881832] dark:text-[#E8A5B3]" />
             <span>Download SVG</span>
           </button>
 
           <button
             onClick={handleDownloadBadge}
             disabled={generatingBadge}
-            className="flex items-center justify-center space-x-2 px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition-all cursor-pointer"
+            className="flex items-center justify-center space-x-2 px-3.5 py-2.5 rounded-xl bg-[#580B1C] hover:bg-[#4A0716] disabled:opacity-50 text-white text-xs font-semibold shadow-md transition-all cursor-pointer"
           >
             <CreditCard className="w-4 h-4" />
-            <span>{generatingBadge ? 'Generating...' : 'ID Card Badge'}</span>
+            <span>{generatingBadge ? 'Generating...' : 'Print ID Badge'}</span>
           </button>
         </div>
 
         {/* Bottom Utility Row */}
-        <div className="flex items-center justify-between pt-3 border-t border-slate-800 light:border-slate-200">
+        <div className="flex items-center justify-between pt-3 border-t border-[#F4CCD5] dark:border-[#580B1C]">
           <button
             onClick={handleCopyUrl}
-            className="flex items-center space-x-1.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer light:text-slate-600 light:hover:text-slate-900"
+            className="flex items-center space-x-1.5 text-xs text-[#881832] hover:text-[#580B1C] transition-colors cursor-pointer dark:text-[#E8A5B3] dark:hover:text-white"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
             <span>{copied ? 'URL Copied' : 'Copy Profile Link'}</span>
           </button>
 
@@ -153,7 +153,7 @@ export default function QRModal({ member, isOpen, onClose }) {
             href={profileUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center space-x-1.5 text-xs text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+            className="flex items-center space-x-1.5 text-xs text-[#701026] hover:text-[#580B1C] font-semibold transition-colors dark:text-[#E8A5B3] dark:hover:text-white"
           >
             <span>Open Profile</span>
             <ExternalLink className="w-3.5 h-3.5" />

@@ -85,52 +85,57 @@ export async function downloadMemberQrSvg(memberId) {
  * Formatted with "CSI KARE", "SCAN TO VIEW PROFILE", QR code, and Member ID
  */
 export async function generatePrintableBadgeDataUrl(memberId, memberName = '') {
-  const qrDataUrl = await generateQrPngDataUrl(memberId, { width: 800, margin: 1 });
+  const qrDataUrl = await generateQrPngDataUrl(memberId, { 
+    width: 800, 
+    margin: 1,
+    darkColor: '#580B1C',
+    lightColor: '#FFFFFF'
+  });
   
   const canvas = document.createElement('canvas');
   canvas.width = 1000;
   canvas.height = 1400;
   const ctx = canvas.getContext('2d');
 
-  // Card Background
-  ctx.fillStyle = '#0b1120';
+  // Card Background: Deep CSI KARE Maroon
+  ctx.fillStyle = '#4A0716';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Card Border & Inner Glow
-  ctx.strokeStyle = '#2563eb';
-  ctx.lineWidth = 12;
+  // Card Border & Soft Rose Inner Glow
+  ctx.strokeStyle = '#701026';
+  ctx.lineWidth = 14;
   ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
 
-  ctx.strokeStyle = 'rgba(59, 130, 246, 0.4)';
+  ctx.strokeStyle = 'rgba(244, 204, 213, 0.5)';
   ctx.lineWidth = 4;
-  ctx.strokeRect(46, 46, canvas.width - 92, canvas.height - 92);
+  ctx.strokeRect(48, 48, canvas.width - 96, canvas.height - 96);
 
   // Header Title
-  ctx.fillStyle = '#60a5fa';
-  ctx.font = 'bold 54px sans-serif';
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = 'bold 54px Montserrat, sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText('CSI KARE', canvas.width / 2, 160);
 
-  ctx.fillStyle = '#94a3b8';
-  ctx.font = '600 28px sans-serif';
-  ctx.fillText('STUDENT CHAPTER', canvas.width / 2, 210);
+  ctx.fillStyle = '#FCE7EB';
+  ctx.font = '600 26px Montserrat, sans-serif';
+  ctx.fillText('COMPUTER SOCIETY OF INDIA', canvas.width / 2, 210);
 
-  ctx.fillStyle = '#e2e8f0';
-  ctx.font = 'bold 32px sans-serif';
+  ctx.fillStyle = '#F8D0D8';
+  ctx.font = 'bold 30px Montserrat, sans-serif';
   ctx.fillText('CORE TEAM 2026–27', canvas.width / 2, 265);
 
   // Divider line
-  ctx.strokeStyle = '#334155';
+  ctx.strokeStyle = '#881832';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(150, 300);
   ctx.lineTo(canvas.width - 150, 300);
   ctx.stroke();
 
-  // "SCAN TO VIEW PROFILE" Subheader (STRICTLY complying with instructions)
-  ctx.fillStyle = '#38bdf8';
-  ctx.font = 'bold 36px sans-serif';
-  ctx.fillText('SCAN TO VIEW PROFILE', canvas.width / 2, 380);
+  // "SCAN TO VIEW PROFILE" Subheader
+  ctx.fillStyle = '#FCE7EB';
+  ctx.font = 'bold 34px Montserrat, sans-serif';
+  ctx.fillText('SCAN TO VIEW PROFILE', canvas.width / 2, 375);
 
   // Draw QR Image in White Rounded Box
   const qrImg = new Image();
@@ -144,35 +149,35 @@ export async function generatePrintableBadgeDataUrl(memberId, memberName = '') {
   const qrY = 430;
 
   // QR background plate
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#FFFFFF';
   ctx.beginPath();
   ctx.roundRect(qrX - 20, qrY - 20, qrBoxSize + 40, qrBoxSize + 40, 24);
   ctx.fill();
 
   ctx.drawImage(qrImg, qrX, qrY, qrBoxSize, qrBoxSize);
 
-  // Member ID Badge
-  ctx.fillStyle = '#1e293b';
+  // Member ID Badge Box
+  ctx.fillStyle = '#2E040D';
   ctx.beginPath();
   ctx.roundRect(canvas.width / 2 - 220, 1070, 440, 80, 20);
   ctx.fill();
-  ctx.strokeStyle = '#3b82f6';
+  ctx.strokeStyle = '#D98295';
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#FFFFFF';
   ctx.font = 'bold 42px monospace';
   ctx.fillText(memberId, canvas.width / 2, 1125);
 
   if (memberName) {
-    ctx.fillStyle = '#cbd5e1';
-    ctx.font = '500 28px sans-serif';
-    ctx.fillText(memberName, canvas.width / 2, 1200);
+    ctx.fillStyle = '#F8D0D8';
+    ctx.font = '600 28px Poppins, sans-serif';
+    ctx.fillText(memberName.toUpperCase(), canvas.width / 2, 1200);
   }
 
   // Footer
-  ctx.fillStyle = '#64748b';
-  ctx.font = '500 24px sans-serif';
+  ctx.fillStyle = '#E8A5B3';
+  ctx.font = '500 24px Poppins, sans-serif';
   ctx.fillText('Kalasalingam Academy of Research and Education', canvas.width / 2, 1310);
 
   return canvas.toDataURL('image/png');

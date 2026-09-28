@@ -17,13 +17,15 @@ export const generateInitial80Members = () => {
   const members = [];
   const now = new Date().toISOString();
 
-  // Highlight first member as example Krishna Chaithanya
+  // Highlight first member as example Krishna Chaithanya with physical card reference data
   members.push({
     memberId: "CSI26-001",
     name: "Krishna Chaithanya",
     role: "Core Team Lead",
     year: "3rd Year",
-    photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600",
+    department: "CSE (AIML) | KARE",
+    quote: "Tech People, Better Tomorrow",
+    photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800",
     instagram: "https://instagram.com/csikare",
     linkedin: "https://linkedin.com/company/csi-kare",
     email: "krishna.csi@klu.ac.in",
@@ -44,6 +46,8 @@ export const generateInitial80Members = () => {
       name: `Core Member ${paddedId}`,
       role: sampleRoles[roleIndex],
       year,
+      department: "CSE | KARE",
+      quote: i % 3 === 0 ? "Innovating for a better digital tomorrow" : "",
       photoUrl: "",
       instagram: "",
       linkedin: "",

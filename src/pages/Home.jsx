@@ -6,10 +6,8 @@ import {
   ArrowRight, 
   QrCode, 
   Users, 
-  Shield, 
-  ExternalLink,
   ChevronRight,
-  Layers
+  GraduationCap
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { getAllMembers } from '../services/memberService';
@@ -47,12 +45,13 @@ export default function Home() {
     return (
       (m.memberId || '').toLowerCase().includes(q) ||
       (m.name || '').toLowerCase().includes(q) ||
-      (m.role || '').toLowerCase().includes(q)
+      (m.role || '').toLowerCase().includes(q) ||
+      (m.department || '').toLowerCase().includes(q)
     );
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 bg-grid-pattern selection:bg-blue-600 selection:text-white light:bg-slate-50 light:text-slate-900 transition-colors flex flex-col justify-between">
+    <div className="min-h-screen bg-[#FAF9F6] text-[#3B0511] bg-maroon-pattern selection:bg-[#701026] selection:text-white dark:bg-[#150206] dark:text-[#FCE7EB] transition-colors flex flex-col justify-between">
       <div>
         <Navbar />
 
@@ -60,41 +59,41 @@ export default function Home() {
         <section className="relative pt-12 pb-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto text-center overflow-hidden">
           
           {/* Ambient Glows */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-tr from-blue-600/20 via-indigo-600/15 to-transparent rounded-full blur-[140px] pointer-events-none light:from-blue-400/25" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#FCE7EB] rounded-full blur-[140px] pointer-events-none opacity-80 dark:bg-[#580B1C]/25" />
 
           <div className="relative z-10 space-y-6">
             
             {/* Chapter Pill */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider shadow-inner light:bg-blue-50 light:text-blue-700 light:border-blue-200">
-              <Sparkles className="w-3.5 h-3.5" />
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFF5F7] border border-[#F4CCD5] text-[#701026] text-xs font-heading font-semibold uppercase tracking-wider shadow-sm dark:bg-[#3B0511] dark:border-[#580B1C] dark:text-[#E8A5B3]">
+              <Sparkles className="w-3.5 h-3.5 text-[#701026] dark:text-[#E8A5B3]" />
               <span>CSI KARE Student Chapter</span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white light:text-slate-900">
-              Core Team <span className="text-gradient">2026–27</span>
+            <h1 className="text-4xl sm:text-6xl font-black font-heading tracking-tight text-[#580B1C] dark:text-white">
+              Core Team <span className="text-gradient-maroon">2026–27</span>
             </h1>
 
-            <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-400 light:text-slate-600">
+            <p className="max-w-2xl mx-auto text-sm sm:text-base text-[#881832] dark:text-[#E8A5B3]">
               Scan any physical ID card QR code or look up a member ID below to explore their personal CSI KARE profile.
             </p>
 
             {/* Quick Member ID Lookup Box */}
             <form onSubmit={handleQuickLookup} className="max-w-md mx-auto pt-4">
-              <div className="glass-card rounded-2xl p-2 flex items-center shadow-xl border border-slate-800 light:border-slate-300">
-                <div className="pl-3 pr-2 text-slate-500 font-mono text-xs">
-                  <QrCode className="w-4 h-4 text-blue-400" />
+              <div className="id-card-frame rounded-2xl p-2 flex items-center shadow-lg bg-white dark:bg-[#23040B] border border-[#F4CCD5] dark:border-[#580B1C]">
+                <div className="pl-3 pr-2 text-[#701026] font-mono text-xs dark:text-[#E8A5B3]">
+                  <QrCode className="w-4 h-4" />
                 </div>
                 <input
                   type="text"
                   value={quickId}
                   onChange={(e) => setQuickId(e.target.value)}
                   placeholder="Enter Member ID (e.g. CSI26-001)"
-                  className="w-full bg-transparent px-2 py-2 text-xs sm:text-sm font-mono text-white placeholder:text-slate-500 focus:outline-none light:text-slate-900"
+                  className="w-full bg-transparent px-2 py-2 text-xs sm:text-sm font-mono text-[#3B0511] placeholder:text-[#881832]/60 focus:outline-none dark:text-white dark:placeholder:text-[#E8A5B3]/60"
                 />
                 <button
                   type="submit"
-                  className="shrink-0 flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs shadow-md shadow-blue-600/30 transition-all cursor-pointer"
+                  className="shrink-0 flex items-center space-x-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701026] to-[#580B1C] hover:from-[#580B1C] hover:to-[#3B0511] text-white font-heading font-semibold text-xs shadow-md shadow-[#701026]/20 transition-all cursor-pointer"
                 >
                   <span>Open</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -109,17 +108,17 @@ export default function Home() {
         <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
             <div>
-              <h2 className="text-xl font-bold text-white light:text-slate-900">
+              <h2 className="text-xl font-bold font-heading text-[#580B1C] dark:text-white">
                 Core Team Roster
               </h2>
-              <p className="text-xs text-slate-400 light:text-slate-500">
-                {members.length} Registered Team Members
+              <p className="text-xs text-[#881832] dark:text-[#E8A5B3]">
+                {members.length} Registered Team Profiles
               </p>
             </div>
 
             {/* Search filter */}
             <div className="relative w-full sm:w-72">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#881832] dark:text-[#E8A5B3]">
                 <Search className="w-3.5 h-3.5" />
               </span>
               <input
@@ -127,7 +126,7 @@ export default function Home() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search member or role..."
-                className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500 light:bg-white light:border-slate-300 light:text-slate-900 shadow-sm"
+                className="w-full pl-9 pr-3.5 py-2 rounded-xl bg-white border border-[#F4CCD5] text-xs text-[#3B0511] placeholder:text-[#881832]/60 focus:outline-none focus:border-[#701026] dark:bg-[#23040B] dark:border-[#580B1C] dark:text-white dark:placeholder:text-[#E8A5B3]/60 shadow-sm"
               />
             </div>
           </div>
@@ -136,15 +135,15 @@ export default function Home() {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="glass-card rounded-2xl p-5 animate-pulse space-y-3">
-                  <div className="w-16 h-16 rounded-full bg-slate-800 light:bg-slate-200 mx-auto" />
-                  <div className="h-4 bg-slate-800 light:bg-slate-200 rounded w-3/4 mx-auto" />
-                  <div className="h-3 bg-slate-800 light:bg-slate-200 rounded w-1/2 mx-auto" />
+                <div key={i} className="id-card-frame rounded-2xl p-5 animate-pulse space-y-3 bg-white dark:bg-[#23040B]">
+                  <div className="w-full aspect-[4/5] rounded-xl bg-[#FCE7EB] dark:bg-[#3B0511]" />
+                  <div className="h-4 bg-[#FCE7EB] dark:bg-[#3B0511] rounded w-3/4 mx-auto" />
+                  <div className="h-3 bg-[#FCE7EB]/70 dark:bg-[#3B0511]/70 rounded w-1/2 mx-auto" />
                 </div>
               ))}
             </div>
           ) : filteredMembers.length === 0 ? (
-            <div className="glass-card rounded-2xl p-8 text-center text-slate-400 text-xs light:border-slate-200">
+            <div className="id-card-frame rounded-2xl p-8 text-center text-[#881832] dark:text-[#E8A5B3] text-xs bg-white dark:bg-[#23040B]">
               No team members match your search criteria.
             </div>
           ) : (
@@ -153,45 +152,51 @@ export default function Home() {
                 <Link
                   key={member.memberId}
                   to={`/member/${member.memberId}`}
-                  className="glass-card glass-card-hover rounded-2xl p-5 text-center flex flex-col items-center justify-between group transition-all"
+                  className="id-card-frame glass-card-hover rounded-2xl p-4 text-center flex flex-col items-center justify-between group transition-all bg-white dark:bg-[#23040B]"
                 >
                   <div className="w-full flex flex-col items-center">
-                    {/* Member ID chip */}
-                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-900 border border-slate-800 text-blue-400 mb-3 light:bg-slate-100 light:border-slate-300 light:text-blue-600">
-                      {member.memberId}
-                    </span>
+                    
+                    {/* Top ID Pill */}
+                    <div className="w-full flex items-center justify-between mb-2.5">
+                      <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#FFF5F7] border border-[#F4CCD5] text-[#701026] dark:bg-[#3B0511] dark:border-[#580B1C] dark:text-[#E8A5B3]">
+                        {member.memberId}
+                      </span>
+                      {member.year && (
+                        <span className="text-[10px] font-heading font-medium text-[#881832] dark:text-[#E8A5B3]/80">
+                          {member.year}
+                        </span>
+                      )}
+                    </div>
 
-                    {/* Photo */}
-                    <div className="w-20 h-20 rounded-full overflow-hidden bg-slate-900 border-2 border-slate-800 group-hover:border-blue-500/60 shadow-lg mb-3 transition-colors light:bg-slate-200">
+                    {/* Full-Length Portrait Photo Container */}
+                    <div className="w-full aspect-[4/5] rounded-xl overflow-hidden bg-gradient-to-b from-[#FFF5F7] to-[#FCE7EB] border-2 border-[#580B1C] shadow-md mb-3 dark:bg-[#150206] dark:border-[#701026]">
                       {member.photoUrl ? (
                         <img
                           src={member.photoUrl}
                           alt={member.name}
                           loading="lazy"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center font-bold text-sm text-slate-500 uppercase">
-                          {(member.name || 'M').slice(0, 2)}
+                        <div className="w-full h-full flex flex-col items-center justify-center font-heading font-bold text-sm text-[#701026] dark:text-[#E8A5B3] uppercase">
+                          <span className="text-xl">{(member.name || 'M').slice(0, 2)}</span>
+                          <span className="text-[10px] opacity-70 mt-1">{member.memberId}</span>
                         </div>
                       )}
                     </div>
 
                     {/* Name & Role */}
-                    <h3 className="font-bold text-sm text-white group-hover:text-blue-400 transition-colors light:text-slate-900 light:group-hover:text-blue-600 line-clamp-1">
+                    <h3 className="font-heading font-extrabold text-sm text-[#580B1C] dark:text-white group-hover:text-[#701026] transition-colors line-clamp-1 uppercase">
                       {member.name}
                     </h3>
-                    <p className="text-[11px] text-slate-400 light:text-slate-500 line-clamp-1 mt-0.5">
+                    <p className="text-[11px] font-heading font-semibold text-[#881832] dark:text-[#E8A5B3] line-clamp-1 mt-0.5 uppercase">
                       {member.role || 'Core Team Member'}
                     </p>
-                    <span className="text-[10px] text-slate-500 light:text-slate-400 mt-0.5">
-                      {member.year || '2nd Year'}
-                    </span>
                   </div>
 
-                  {/* View Profile prompt */}
-                  <div className="w-full pt-3 mt-3 border-t border-slate-800/80 light:border-slate-200 flex items-center justify-center space-x-1 text-[11px] text-blue-400 font-semibold group-hover:translate-x-0.5 transition-transform">
-                    <span>View Profile</span>
+                  {/* View Profile Prompt */}
+                  <div className="w-full pt-2.5 mt-2.5 border-t border-[#F4CCD5] dark:border-[#580B1C] flex items-center justify-center space-x-1 text-[11px] text-[#701026] font-heading font-bold group-hover:translate-x-0.5 transition-transform dark:text-[#E8A5B3]">
+                    <span>View Digital Profile</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </div>
                 </Link>
@@ -202,11 +207,11 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="w-full border-t border-slate-800/80 bg-slate-950/60 py-6 text-center text-xs text-slate-500 light:border-slate-200 light:bg-white light:text-slate-500">
-        <p className="font-semibold text-slate-400 light:text-slate-600">
+      <footer className="w-full border-t border-[#F4CCD5] bg-white/70 dark:bg-[#150206]/70 dark:border-[#580B1C] py-6 text-center text-xs text-[#881832] dark:text-[#E8A5B3]">
+        <p className="font-heading font-bold text-[#580B1C] dark:text-[#FCE7EB]">
           CSI KARE Student Chapter
         </p>
-        <p className="text-[11px] mt-0.5">
+        <p className="text-[11px] mt-0.5 opacity-80">
           Kalasalingam Academy of Research and Education • Core Team 2026–27
         </p>
       </footer>

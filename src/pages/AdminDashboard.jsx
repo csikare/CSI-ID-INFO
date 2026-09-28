@@ -13,10 +13,9 @@ import {
   CheckCircle2, 
   Sparkles,
   Filter,
-  ArrowUpDown,
-  ExternalLink,
   Shield,
-  Layers
+  GraduationCap,
+  Quote as QuoteIcon
 } from 'lucide-react';
 import { 
   getAllMembers, 
@@ -30,7 +29,6 @@ import EditMemberModal from '../components/EditMemberModal';
 import QRModal from '../components/QRModal';
 import BulkQRModal from '../components/BulkQRModal';
 import Navbar from '../components/Navbar';
-import { isFirebaseConfigured } from '../config/firebase';
 
 export default function AdminDashboard() {
   const [members, setMembers] = useState([]);
@@ -71,10 +69,10 @@ export default function AdminDashboard() {
   const handleSaveMember = async (formData) => {
     if (isNewMemberModal) {
       const created = await createMember(formData);
-      showToast(`Created new member profile: ${created.memberId}`);
+      showToast(`Created member: ${created.memberId}`);
     } else {
       await updateMember(formData.memberId, formData);
-      showToast(`Updated profile for ${formData.memberId}`);
+      showToast(`Updated member: ${formData.memberId}`);
     }
     await loadMembers();
   };
@@ -94,13 +92,13 @@ export default function AdminDashboard() {
   const handleSeedDatabase = async (force = false) => {
     const confirmMsg = force 
       ? 'Reset all 80 initial member records? Any custom edits on initial records will be reset to default placeholders.'
-      : 'Initialize initial 80 member records into the database?';
+      : 'Sync initial 80 member records into the database?';
     
     if (window.confirm(confirmMsg)) {
       setSeeding(true);
       try {
         const res = await seedInitial80Members(force);
-        showToast(`Seeded ${res.count} members into ${res.target.toUpperCase()}!`);
+        showToast(`Seeded ${res.count} members!`);
         await loadMembers();
       } catch (err) {
         alert('Seeding error: ' + err.message);
@@ -117,6 +115,7 @@ export default function AdminDashboard() {
       (m.memberId || '').toLowerCase().includes(q) ||
       (m.name || '').toLowerCase().includes(q) ||
       (m.role || '').toLowerCase().includes(q) ||
+      (m.department || '').toLowerCase().includes(q) ||
       (m.year || '').toLowerCase().includes(q);
 
     const matchesYear = yearFilter === 'ALL' || m.year === yearFilter;
@@ -126,11 +125,11 @@ export default function AdminDashboard() {
   // Calculate statistics
   const totalMembers = members.length;
   const withPhotos = members.filter((m) => Boolean(m.photoUrl)).length;
-  const withSocials = members.filter((m) => Boolean(m.instagram || m.linkedin || m.email || m.phone)).length;
+  const withQuotes = members.filter((m) => Boolean(m.quote)).length;
   const suggestedNextId = getNextSuggestedMemberId(members);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 bg-grid-pattern selection:bg-blue-600 selection:text-white light:bg-slate-50 light:text-slate-900 transition-colors">
+    <div className="min-h-screen bg-[#FAF9F6] text-[#3B0511] bg-maroon-pattern selection:bg-[#701026] selection:text-white dark:bg-[#150206] dark:text-[#FCE7EB] transition-colors">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -138,28 +137,28 @@ export default function AdminDashboard() {
         {/* Toast Alert */}
         {notification && (
           <div className="fixed bottom-6 right-6 z-50 animate-bounce">
-            <div className="flex items-center space-x-2 px-4 py-3 rounded-2xl bg-emerald-600 text-white shadow-xl shadow-emerald-600/30 font-medium text-xs">
-              <CheckCircle2 className="w-4 h-4" />
+            <div className="flex items-center space-x-2 px-4 py-3 rounded-2xl bg-[#580B1C] text-white shadow-xl font-medium text-xs border border-[#E8A5B3]/40">
+              <CheckCircle2 className="w-4 h-4 text-[#E8A5B3]" />
               <span>{notification}</span>
             </div>
           </div>
         )}
 
         {/* Dashboard Header Banner */}
-        <div className="glass-card rounded-3xl p-6 sm:p-8 border border-slate-800 relative overflow-hidden light:border-slate-200">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="id-card-frame rounded-3xl p-6 sm:p-8 bg-white dark:bg-[#23040B] relative overflow-hidden shadow-xl border border-[#F4CCD5] dark:border-[#580B1C]">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#FCE7EB] rounded-full blur-[100px] pointer-events-none opacity-80 dark:bg-[#701026]/20" />
 
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider mb-3 light:bg-blue-50 light:text-blue-700">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFF5F7] border border-[#F4CCD5] text-[#701026] text-xs font-heading font-semibold uppercase tracking-wider mb-3 dark:bg-[#3B0511] dark:border-[#580B1C] dark:text-[#E8A5B3]">
                 <Shield className="w-3.5 h-3.5" />
                 <span>CSI KARE Administrator Dashboard</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white light:text-slate-900 tracking-tight">
-                Core Team Member Directory
+              <h1 className="text-2xl sm:text-3xl font-black font-heading text-[#580B1C] dark:text-white tracking-tight">
+                Member Profile Management
               </h1>
-              <p className="text-xs sm:text-sm text-slate-400 light:text-slate-500 mt-1">
-                Manage permanent profiles and generate print-ready QR codes for physical ID cards.
+              <p className="text-xs sm:text-sm text-[#881832] dark:text-[#E8A5B3] mt-1">
+                Manage full-length portrait profiles and permanent QR codes for physical ID cards.
               </p>
             </div>
 
@@ -171,7 +170,7 @@ export default function AdminDashboard() {
                   setEditingMember(null);
                   setIsEditModalOpen(true);
                 }}
-                className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-lg shadow-blue-600/25 transition-all cursor-pointer"
+                className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#701026] to-[#580B1C] hover:from-[#580B1C] hover:to-[#3B0511] text-white text-xs font-heading font-semibold shadow-md shadow-[#701026]/20 transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Member</span>
@@ -179,53 +178,53 @@ export default function AdminDashboard() {
 
               <button
                 onClick={() => setIsBulkModalOpen(true)}
-                className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 hover:border-slate-600 text-xs font-semibold transition-all cursor-pointer light:bg-white light:text-slate-800 light:border-slate-300 light:hover:bg-slate-50"
+                className="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-[#FFF5F7] hover:bg-[#FCE7EB] text-[#580B1C] border border-[#F4CCD5] text-xs font-heading font-semibold transition-all cursor-pointer dark:bg-[#2A040D] dark:text-[#FCE7EB] dark:border-[#580B1C] dark:hover:bg-[#3B0511]"
               >
-                <Archive className="w-4 h-4 text-indigo-400" />
-                <span>Generate All QR Codes</span>
+                <Archive className="w-4 h-4 text-[#701026] dark:text-[#E8A5B3]" />
+                <span>Bulk QR Export (.ZIP)</span>
               </button>
 
               <button
                 onClick={() => handleSeedDatabase(false)}
                 disabled={seeding}
                 title="Initialize or sync 80 initial records"
-                className="flex items-center space-x-1.5 px-3 py-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 text-xs font-medium transition-colors cursor-pointer light:bg-slate-100 light:text-slate-600 light:border-slate-200"
+                className="flex items-center space-x-1.5 px-3 py-2.5 rounded-xl bg-[#FFF5F7] hover:bg-[#FCE7EB] text-[#881832] border border-[#F4CCD5] text-xs font-medium transition-colors cursor-pointer dark:bg-[#2A040D] dark:text-[#E8A5B3] dark:border-[#580B1C]"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${seeding ? 'animate-spin text-blue-400' : ''}`} />
-                <span className="hidden sm:inline">Sync Initial 80</span>
+                <RefreshCw className={`w-3.5 h-3.5 ${seeding ? 'animate-spin text-[#701026]' : ''}`} />
+                <span className="hidden sm:inline">Sync Baseline</span>
               </button>
             </div>
           </div>
 
           {/* Stats Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 pt-6 border-t border-slate-800/80 light:border-slate-200">
-            <div className="flex items-center space-x-4 p-4 rounded-2xl bg-slate-900/50 border border-slate-800/60 light:bg-slate-50 light:border-slate-200">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 pt-6 border-t border-[#F4CCD5] dark:border-[#580B1C]">
+            <div className="flex items-center space-x-4 p-4 rounded-2xl bg-[#FFF5F7] border border-[#F4CCD5] dark:bg-[#150206] dark:border-[#580B1C]">
+              <div className="w-10 h-10 rounded-xl bg-white text-[#701026] flex items-center justify-center border border-[#F4CCD5] dark:bg-[#2E040D] dark:border-[#580B1C] dark:text-[#E8A5B3]">
                 <Users className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xl font-bold text-white light:text-slate-900">{totalMembers}</p>
-                <p className="text-[11px] text-slate-400 font-medium">Total Registered Members</p>
+                <p className="text-xl font-bold font-heading text-[#580B1C] dark:text-white">{totalMembers}</p>
+                <p className="text-[11px] text-[#881832] dark:text-[#E8A5B3] font-medium">Total Registered Members</p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-4 p-4 rounded-2xl bg-slate-900/50 border border-slate-800/60 light:bg-slate-50 light:border-slate-200">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+            <div className="flex items-center space-x-4 p-4 rounded-2xl bg-[#FFF5F7] border border-[#F4CCD5] dark:bg-[#150206] dark:border-[#580B1C]">
+              <div className="w-10 h-10 rounded-xl bg-white text-[#701026] flex items-center justify-center border border-[#F4CCD5] dark:bg-[#2E040D] dark:border-[#580B1C] dark:text-[#E8A5B3]">
                 <ImageIcon className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xl font-bold text-white light:text-slate-900">{withPhotos}</p>
-                <p className="text-[11px] text-slate-400 font-medium">Profiles with Photos</p>
+                <p className="text-xl font-bold font-heading text-[#580B1C] dark:text-white">{withPhotos}</p>
+                <p className="text-[11px] text-[#881832] dark:text-[#E8A5B3] font-medium">With Full-Length Photos</p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-4 p-4 rounded-2xl bg-slate-900/50 border border-slate-800/60 light:bg-slate-50 light:border-slate-200">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
-                <Sparkles className="w-5 h-5" />
+            <div className="flex items-center space-x-4 p-4 rounded-2xl bg-[#FFF5F7] border border-[#F4CCD5] dark:bg-[#150206] dark:border-[#580B1C]">
+              <div className="w-10 h-10 rounded-xl bg-white text-[#701026] flex items-center justify-center border border-[#F4CCD5] dark:bg-[#2E040D] dark:border-[#580B1C] dark:text-[#E8A5B3]">
+                <QuoteIcon className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-xl font-bold text-white light:text-slate-900">{withSocials}</p>
-                <p className="text-[11px] text-slate-400 font-medium">With Contact/Social Info</p>
+                <p className="text-xl font-bold font-heading text-[#580B1C] dark:text-white">{withQuotes}</p>
+                <p className="text-[11px] text-[#881832] dark:text-[#E8A5B3] font-medium">With Card Quotes</p>
               </div>
             </div>
           </div>
@@ -234,25 +233,25 @@ export default function AdminDashboard() {
         {/* Search & Filter Controls */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="relative w-full sm:w-80">
-            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#881832] dark:text-[#E8A5B3]">
               <Search className="w-4 h-4" />
             </span>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by ID, name, role, year..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500 light:bg-white light:border-slate-300 light:text-slate-900 shadow-sm"
+              placeholder="Search by ID, name, role, dept, year..."
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-[#F4CCD5] text-xs text-[#3B0511] placeholder:text-[#881832]/60 focus:outline-none focus:border-[#701026] dark:bg-[#23040B] dark:border-[#580B1C] dark:text-white shadow-sm"
             />
           </div>
 
           <div className="flex items-center space-x-3 w-full sm:w-auto justify-end">
             <div className="flex items-center space-x-2">
-              <Filter className="w-3.5 h-3.5 text-slate-400" />
+              <Filter className="w-3.5 h-3.5 text-[#881832] dark:text-[#E8A5B3]" />
               <select
                 value={yearFilter}
                 onChange={(e) => setYearFilter(e.target.value)}
-                className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-blue-500 light:bg-white light:border-slate-300 light:text-slate-900 cursor-pointer"
+                className="px-3 py-2 rounded-xl bg-white border border-[#F4CCD5] text-xs text-[#3B0511] focus:outline-none focus:border-[#701026] dark:bg-[#23040B] dark:border-[#580B1C] dark:text-white cursor-pointer"
               >
                 <option value="ALL">All Academic Years</option>
                 <option value="2nd Year">2nd Year</option>
@@ -263,38 +262,38 @@ export default function AdminDashboard() {
               </select>
             </div>
 
-            <span className="text-xs text-slate-400 font-mono">
+            <span className="text-xs text-[#881832] font-mono dark:text-[#E8A5B3]">
               Showing {filteredMembers.length} of {members.length}
             </span>
           </div>
         </div>
 
         {/* Member Table View */}
-        <div className="glass-card rounded-3xl border border-slate-800 overflow-hidden shadow-2xl light:border-slate-200">
+        <div className="id-card-frame rounded-3xl border border-[#F4CCD5] overflow-hidden shadow-xl bg-white dark:bg-[#23040B] dark:border-[#580B1C]">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-800 bg-slate-900/80 text-[11px] font-semibold text-slate-400 uppercase tracking-wider light:bg-slate-100 light:border-slate-200 light:text-slate-600">
+                <tr className="border-b border-[#F4CCD5] bg-[#FFF5F7] text-[11px] font-heading font-bold text-[#580B1C] uppercase tracking-wider dark:bg-[#150206] dark:border-[#580B1C] dark:text-[#E8A5B3]">
                   <th className="py-3.5 px-4 sm:px-6">Member ID</th>
                   <th className="py-3.5 px-4">Photo</th>
                   <th className="py-3.5 px-4">Name</th>
                   <th className="py-3.5 px-4">Role</th>
-                  <th className="py-3.5 px-4">Year</th>
-                  <th className="py-3.5 px-4 text-center">Contact Links</th>
+                  <th className="py-3.5 px-4">Year / Dept</th>
+                  <th className="py-3.5 px-4 text-center">Quote & Links</th>
                   <th className="py-3.5 px-4 sm:px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 text-xs light:divide-slate-200">
+              <tbody className="divide-y divide-[#F4CCD5]/60 text-xs dark:divide-[#580B1C]/60">
                 {loading ? (
                   <tr>
-                    <td colSpan="7" className="py-12 text-center text-slate-500">
-                      <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-500" />
+                    <td colSpan="7" className="py-12 text-center text-[#881832] dark:text-[#E8A5B3]">
+                      <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#701026]" />
                       Loading member records...
                     </td>
                   </tr>
                 ) : filteredMembers.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="py-12 text-center text-slate-500">
+                    <td colSpan="7" className="py-12 text-center text-[#881832] dark:text-[#E8A5B3]">
                       No members matching your search query.
                     </td>
                   </tr>
@@ -302,24 +301,24 @@ export default function AdminDashboard() {
                   filteredMembers.map((member) => (
                     <tr 
                       key={member.memberId}
-                      className="hover:bg-slate-900/50 transition-colors group light:hover:bg-slate-50"
+                      className="hover:bg-[#FFF5F7]/80 transition-colors group dark:hover:bg-[#150206]/50"
                     >
                       {/* Member ID */}
-                      <td className="py-3.5 px-4 sm:px-6 font-mono font-bold text-blue-400 light:text-blue-600">
+                      <td className="py-3.5 px-4 sm:px-6 font-mono font-bold text-[#701026] dark:text-[#E8A5B3]">
                         {member.memberId}
                       </td>
 
                       {/* Photo Thumbnail */}
                       <td className="py-3.5 px-4">
-                        <div className="w-9 h-9 rounded-full overflow-hidden bg-slate-800 border border-slate-700 flex items-center justify-center light:bg-slate-200">
+                        <div className="w-10 h-12 rounded-lg overflow-hidden bg-[#FFF5F7] border border-[#701026] flex items-center justify-center dark:bg-[#150206]">
                           {member.photoUrl ? (
                             <img
                               src={member.photoUrl}
                               alt={member.name}
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover object-top"
                             />
                           ) : (
-                            <span className="font-bold text-[10px] text-slate-500 uppercase">
+                            <span className="font-heading font-bold text-[10px] text-[#701026] dark:text-[#E8A5B3] uppercase">
                               {(member.name || 'M').slice(0, 2)}
                             </span>
                           )}
@@ -327,36 +326,40 @@ export default function AdminDashboard() {
                       </td>
 
                       {/* Full Name */}
-                      <td className="py-3.5 px-4 font-semibold text-white light:text-slate-900">
+                      <td className="py-3.5 px-4 font-heading font-bold text-[#3B0511] dark:text-white uppercase">
                         {member.name}
                       </td>
 
                       {/* Role */}
-                      <td className="py-3.5 px-4 text-slate-300 light:text-slate-700">
-                        <span className="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800 text-[11px] light:bg-slate-100 light:border-slate-300">
+                      <td className="py-3.5 px-4 text-[#580B1C] dark:text-[#FCE7EB]">
+                        <span className="px-2.5 py-1 rounded-md bg-[#FFF5F7] border border-[#F4CCD5] text-[11px] font-heading font-medium dark:bg-[#150206] dark:border-[#580B1C]">
                           {member.role || 'Member'}
                         </span>
                       </td>
 
-                      {/* Year */}
-                      <td className="py-3.5 px-4 text-slate-400 light:text-slate-500">
-                        {member.year || '—'}
+                      {/* Year & Dept */}
+                      <td className="py-3.5 px-4 text-[#881832] dark:text-[#E8A5B3]">
+                        <div>{member.year || '—'}</div>
+                        {member.department && (
+                          <div className="text-[10px] text-[#881832]/80 dark:text-[#E8A5B3]/70">{member.department}</div>
+                        )}
                       </td>
 
-                      {/* Social Indicators */}
+                      {/* Quote & Social Indicators */}
                       <td className="py-3.5 px-4 text-center">
-                        <div className="flex items-center justify-center space-x-1.5 opacity-80">
-                          {member.instagram && <span className="w-2 h-2 rounded-full bg-pink-500" title="Instagram configured" />}
-                          {member.linkedin && <span className="w-2 h-2 rounded-full bg-blue-500" title="LinkedIn configured" />}
-                          {member.email && <span className="w-2 h-2 rounded-full bg-emerald-500" title="Email configured" />}
-                          {member.phone && <span className="w-2 h-2 rounded-full bg-purple-500" title="Phone configured" />}
-                          {!member.instagram && !member.linkedin && !member.email && !member.phone && (
-                            <span className="text-[10px] text-slate-600">—</span>
+                        <div className="flex items-center justify-center space-x-1.5 opacity-85">
+                          {member.quote && <span className="w-2 h-2 rounded-full bg-[#701026]" title="Quote configured" />}
+                          {member.instagram && <span className="w-2 h-2 rounded-full bg-pink-600" title="Instagram configured" />}
+                          {member.linkedin && <span className="w-2 h-2 rounded-full bg-blue-700" title="LinkedIn configured" />}
+                          {member.email && <span className="w-2 h-2 rounded-full bg-emerald-600" title="Email configured" />}
+                          {member.phone && <span className="w-2 h-2 rounded-full bg-purple-700" title="Phone configured" />}
+                          {!member.quote && !member.instagram && !member.linkedin && !member.email && !member.phone && (
+                            <span className="text-[10px] text-slate-400">—</span>
                           )}
                         </div>
                       </td>
 
-                      {/* Action Buttons: View, Edit, QR, Delete */}
+                      {/* Actions */}
                       <td className="py-3.5 px-4 sm:px-6 text-right">
                         <div className="flex items-center justify-end space-x-1.5">
                           
@@ -365,10 +368,10 @@ export default function AdminDashboard() {
                             href={`/member/${member.memberId}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-800 transition-colors light:bg-white light:text-slate-600 light:border-slate-300 light:hover:text-slate-900"
-                            title="Open Public Profile"
+                            className="p-1.5 rounded-lg text-[#580B1C] hover:text-[#701026] bg-[#FFF5F7] hover:bg-[#FCE7EB] border border-[#F4CCD5] transition-colors dark:bg-[#150206] dark:border-[#580B1C] dark:text-[#E8A5B3]"
+                            title="Open Digital Profile"
                           >
-                            <Eye className="w-3.5 h-3.5 text-sky-400" />
+                            <Eye className="w-3.5 h-3.5" />
                           </a>
 
                           {/* Edit Member */}
@@ -378,25 +381,25 @@ export default function AdminDashboard() {
                               setEditingMember(member);
                               setIsEditModalOpen(true);
                             }}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-800 transition-colors cursor-pointer light:bg-white light:text-slate-600 light:border-slate-300 light:hover:text-slate-900"
+                            className="p-1.5 rounded-lg text-[#580B1C] hover:text-[#701026] bg-[#FFF5F7] hover:bg-[#FCE7EB] border border-[#F4CCD5] transition-colors cursor-pointer dark:bg-[#150206] dark:border-[#580B1C] dark:text-[#E8A5B3]"
                             title="Edit Member Information"
                           >
-                            <Edit3 className="w-3.5 h-3.5 text-blue-400" />
+                            <Edit3 className="w-3.5 h-3.5 text-[#701026] dark:text-[#E8A5B3]" />
                           </button>
 
                           {/* QR Code Preview & Download */}
                           <button
                             onClick={() => setQrModalMember(member)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-800 transition-colors cursor-pointer light:bg-white light:text-slate-600 light:border-slate-300 light:hover:text-slate-900"
+                            className="p-1.5 rounded-lg text-[#580B1C] hover:text-[#701026] bg-[#FFF5F7] hover:bg-[#FCE7EB] border border-[#F4CCD5] transition-colors cursor-pointer dark:bg-[#150206] dark:border-[#580B1C] dark:text-[#E8A5B3]"
                             title="Generate & Download QR"
                           >
-                            <QrCode className="w-3.5 h-3.5 text-emerald-400" />
+                            <QrCode className="w-3.5 h-3.5 text-[#701026] dark:text-[#E8A5B3]" />
                           </button>
 
                           {/* Delete */}
                           <button
                             onClick={() => handleDeleteMember(member.memberId, member.name)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 bg-slate-900/80 hover:bg-red-950/40 border border-slate-800 hover:border-red-900/50 transition-colors cursor-pointer light:bg-white light:text-slate-600 light:border-slate-300 light:hover:text-red-600"
+                            className="p-1.5 rounded-lg text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors cursor-pointer dark:bg-red-950/40 dark:border-red-900"
                             title="Delete Member"
                           >
                             <Trash2 className="w-3.5 h-3.5" />

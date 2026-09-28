@@ -9,10 +9,10 @@ import {
   Mail, 
   Phone, 
   Sparkles,
-  Link as LinkIcon
+  Quote as QuoteIcon,
+  GraduationCap
 } from 'lucide-react';
 import { InstagramIcon, LinkedinIcon } from './BrandIcons';
-
 import { uploadImageToCloudinary } from '../services/cloudinaryService';
 
 const YEAR_OPTIONS = [
@@ -50,6 +50,8 @@ export default function EditMemberModal({
     name: '',
     role: '',
     year: '2nd Year',
+    department: 'CSE (AIML) | KARE',
+    quote: '',
     photoUrl: '',
     instagram: '',
     linkedin: '',
@@ -69,6 +71,8 @@ export default function EditMemberModal({
         name: member.name || '',
         role: member.role || 'Core Team Member',
         year: member.year || '2nd Year',
+        department: member.department || 'CSE (AIML) | KARE',
+        quote: member.quote || '',
         photoUrl: member.photoUrl || '',
         instagram: member.instagram || '',
         linkedin: member.linkedin || '',
@@ -81,6 +85,8 @@ export default function EditMemberModal({
         name: '',
         role: 'Core Team Member',
         year: '2nd Year',
+        department: 'CSE | KARE',
+        quote: '',
         photoUrl: '',
         instagram: '',
         linkedin: '',
@@ -150,62 +156,62 @@ export default function EditMemberModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#2E040D]/80 backdrop-blur-md overflow-y-auto animate-fade-in">
       <div 
-        className="relative w-full max-w-2xl my-8 glass-card rounded-3xl p-6 sm:p-8 border border-slate-700/80 shadow-2xl text-slate-100 light:text-slate-900 light:border-slate-200 max-h-[90vh] overflow-y-auto"
+        className="relative w-full max-w-2xl my-8 bg-white dark:bg-[#23040B] rounded-3xl p-6 sm:p-8 border border-[#F4CCD5] dark:border-[#580B1C] shadow-2xl text-[#3B0511] dark:text-[#FCE7EB] max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
           type="button"
-          className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-white bg-slate-900 hover:bg-slate-800 transition-colors cursor-pointer light:text-slate-500 light:hover:text-slate-800"
+          className="absolute top-5 right-5 p-2 rounded-full text-[#881832] hover:text-[#580B1C] bg-[#FFF5F7] hover:bg-[#FCE7EB] transition-colors cursor-pointer dark:bg-[#3B0511] dark:text-[#E8A5B3] dark:hover:text-white"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Modal Header */}
         <div className="flex items-center space-x-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 light:bg-blue-50 light:text-blue-600">
+          <div className="w-10 h-10 rounded-xl bg-[#FFF5F7] border border-[#F4CCD5] flex items-center justify-center text-[#701026] dark:bg-[#3B0511] dark:border-[#580B1C] dark:text-[#E8A5B3]">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white light:text-slate-900">
+            <h2 className="text-xl font-bold font-heading text-[#580B1C] dark:text-white">
               {isNew ? 'Add New Core Team Member' : `Edit Member (${formData.memberId})`}
             </h2>
-            <p className="text-xs text-slate-400 light:text-slate-500">
-              Changes update immediately on the permanent member profile.
+            <p className="text-xs text-[#881832] dark:text-[#E8A5B3]">
+              Updates apply instantly to the member's physical-card digital profile.
             </p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-6 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-medium light:bg-red-50 light:text-red-600">
+          <div className="mb-6 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium dark:bg-red-950/40 dark:border-red-900 dark:text-red-400">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           
-          {/* Photo Upload Section */}
-          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 light:bg-slate-50 light:border-slate-200">
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-3 light:text-slate-700">
-              Member Photo
+          {/* Full-Length Photo Upload Section */}
+          <div className="p-4 rounded-2xl bg-[#FFF5F7] border border-[#F4CCD5] dark:bg-[#2E040D]/60 dark:border-[#580B1C]">
+            <label className="block text-xs font-semibold font-heading text-[#580B1C] uppercase tracking-wider mb-3 dark:text-[#E8A5B3]">
+              Full-Length Portrait Photo
             </label>
             <div className="flex items-center space-x-4">
-              <div className="relative w-20 h-20 rounded-full overflow-hidden bg-slate-800 border-2 border-slate-700 flex items-center justify-center shrink-0 light:bg-slate-200">
+              <div className="relative w-20 h-24 rounded-xl overflow-hidden bg-white border-2 border-[#701026] flex items-center justify-center shrink-0 shadow-sm dark:bg-[#150206]">
                 {formData.photoUrl ? (
                   <img
                     src={formData.photoUrl}
                     alt="Preview"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-top"
                   />
                 ) : (
-                  <User className="w-8 h-8 text-slate-500" />
+                  <User className="w-8 h-8 text-[#881832] opacity-50" />
                 )}
                 {uploadingPhoto && (
-                  <div className="absolute inset-0 bg-slate-950/70 flex items-center justify-center">
-                    <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                    <Loader2 className="w-6 h-6 text-white animate-spin" />
                   </div>
                 )}
               </div>
@@ -222,36 +228,36 @@ export default function EditMemberModal({
                   />
                   <label
                     htmlFor="photo-upload-input"
-                    className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-sm cursor-pointer transition-colors"
+                    className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-[#701026] hover:bg-[#580B1C] text-white text-xs font-semibold shadow-sm cursor-pointer transition-colors"
                   >
                     <Upload className="w-3.5 h-3.5" />
-                    <span>{uploadingPhoto ? 'Uploading...' : 'Upload to Cloudinary'}</span>
+                    <span>{uploadingPhoto ? 'Uploading to Cloudinary...' : 'Upload Photo'}</span>
                   </label>
 
                   {formData.photoUrl && (
                     <button
                       type="button"
                       onClick={handleRemovePhoto}
-                      className="inline-flex items-center space-x-1 px-3 py-2 rounded-xl bg-red-950/30 hover:bg-red-950/60 text-red-400 border border-red-900/40 text-xs font-medium cursor-pointer transition-colors light:bg-red-50 light:text-red-600 light:border-red-200"
+                      className="inline-flex items-center space-x-1 px-3 py-2 rounded-xl bg-red-100 hover:bg-red-200 text-red-700 text-xs font-medium cursor-pointer transition-colors dark:bg-red-950/40 dark:text-red-400"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>Remove</span>
                     </button>
                   )}
                 </div>
-                <p className="text-[11px] text-slate-400 light:text-slate-500">
-                  Recommended: Square JPG, PNG or WebP under 5MB.
+                <p className="text-[11px] text-[#881832] dark:text-[#E8A5B3]">
+                  Full-length / full-body portrait (4:5 ratio) looks best on the digital ID profile.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Basic Member Info */}
+          {/* Member Name, Role, Year, Dept */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5 light:text-slate-700">
-                Permanent Member ID <span className="text-red-400">*</span>
+              <label className="block text-xs font-semibold font-heading text-[#580B1C] uppercase tracking-wider mb-1.5 dark:text-[#E8A5B3]">
+                Permanent Member ID <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -261,30 +267,27 @@ export default function EditMemberModal({
                 disabled={!isNew}
                 placeholder="e.g. CSI26-001"
                 required
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm font-mono text-white focus:outline-none focus:border-blue-500 disabled:opacity-60 disabled:cursor-not-allowed light:bg-white light:border-slate-300 light:text-slate-900"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F4CCD5] text-sm font-mono text-[#3B0511] focus:outline-none focus:border-[#701026] disabled:opacity-60 disabled:cursor-not-allowed dark:bg-[#150206] dark:border-[#580B1C] dark:text-white"
               />
-              <p className="text-[10px] text-slate-400 mt-1 light:text-slate-500">
-                {isNew ? 'Unique ID for the member QR code URL.' : 'Permanent ID mapped to physical QR.'}
-              </p>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5 light:text-slate-700">
-                Full Name <span className="text-red-400">*</span>
+              <label className="block text-xs font-semibold font-heading text-[#580B1C] uppercase tracking-wider mb-1.5 dark:text-[#E8A5B3]">
+                Full Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="e.g. Krishna Chaithanya"
+                placeholder="e.g. KRISHNA CHAITHANYA"
                 required
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-white focus:outline-none focus:border-blue-500 light:bg-white light:border-slate-300 light:text-slate-900"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F4CCD5] text-sm font-heading font-semibold text-[#3B0511] focus:outline-none focus:border-[#701026] dark:bg-[#150206] dark:border-[#580B1C] dark:text-white"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5 light:text-slate-700">
+              <label className="block text-xs font-semibold font-heading text-[#580B1C] uppercase tracking-wider mb-1.5 dark:text-[#E8A5B3]">
                 Role / Designation
               </label>
               <input
@@ -294,7 +297,7 @@ export default function EditMemberModal({
                 onChange={handleChange}
                 list="role-suggestions"
                 placeholder="e.g. Core Team Lead"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-white focus:outline-none focus:border-blue-500 light:bg-white light:border-slate-300 light:text-slate-900"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F4CCD5] text-sm text-[#3B0511] focus:outline-none focus:border-[#701026] dark:bg-[#150206] dark:border-[#580B1C] dark:text-white"
               />
               <datalist id="role-suggestions">
                 {COMMON_ROLES.map((r) => (
@@ -304,38 +307,63 @@ export default function EditMemberModal({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5 light:text-slate-700">
+              <label className="block text-xs font-semibold font-heading text-[#580B1C] uppercase tracking-wider mb-1.5 dark:text-[#E8A5B3]">
                 Academic Year
               </label>
               <select
                 name="year"
                 value={formData.year}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-white focus:outline-none focus:border-blue-500 light:bg-white light:border-slate-300 light:text-slate-900"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F4CCD5] text-sm text-[#3B0511] focus:outline-none focus:border-[#701026] dark:bg-[#150206] dark:border-[#580B1C] dark:text-white cursor-pointer"
               >
                 {YEAR_OPTIONS.map((y) => (
-                  <option key={y} value={y} className="bg-slate-900 text-white light:bg-white light:text-slate-900">
+                  <option key={y} value={y} className="bg-white text-black dark:bg-[#23040B] dark:text-white">
                     {y}
                   </option>
                 ))}
               </select>
             </div>
 
+            <div>
+              <label className="block text-xs font-semibold font-heading text-[#580B1C] uppercase tracking-wider mb-1.5 dark:text-[#E8A5B3]">
+                Department / Program
+              </label>
+              <input
+                type="text"
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                placeholder="e.g. CSE (AIML) | KARE"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F4CCD5] text-sm text-[#3B0511] focus:outline-none focus:border-[#701026] dark:bg-[#150206] dark:border-[#580B1C] dark:text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold font-heading text-[#580B1C] uppercase tracking-wider mb-1.5 dark:text-[#E8A5B3]">
+                Member Quote (ID Card Script)
+              </label>
+              <input
+                type="text"
+                name="quote"
+                value={formData.quote}
+                onChange={handleChange}
+                placeholder='e.g. "Tech People, Better Tomorrow"'
+                className="w-full px-3.5 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F4CCD5] text-sm font-quote-script italic text-[#580B1C] focus:outline-none focus:border-[#701026] dark:bg-[#150206] dark:border-[#580B1C] dark:text-[#FCE7EB]"
+              />
+            </div>
+
           </div>
 
-          {/* Social and Contact Links */}
-          <div className="space-y-3 pt-2 border-t border-slate-800 light:border-slate-200">
-            <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider light:text-slate-700">
-              Social & Contact Information (Optional)
+          {/* Social & Contact Links */}
+          <div className="space-y-3 pt-2 border-t border-[#F4CCD5] dark:border-[#580B1C]">
+            <h3 className="text-xs font-semibold font-heading text-[#580B1C] uppercase tracking-wider dark:text-[#E8A5B3]">
+              Social & Contact Information
             </h3>
-            <p className="text-[11px] text-slate-400 light:text-slate-500">
-              Circular buttons will only appear on the public profile if a value is provided.
-            </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-                  <InstagramIcon className="w-4 h-4 text-pink-400" />
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#881832]">
+                  <InstagramIcon className="w-4 h-4 text-[#701026]" />
                 </span>
                 <input
                   type="text"
@@ -343,13 +371,13 @@ export default function EditMemberModal({
                   value={formData.instagram}
                   onChange={handleChange}
                   placeholder="Instagram (username or URL)"
-                  className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-blue-500 light:bg-white light:border-slate-300 light:text-slate-900"
+                  className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F4CCD5] text-xs text-[#3B0511] focus:outline-none focus:border-[#701026] dark:bg-[#150206] dark:border-[#580B1C] dark:text-white"
                 />
               </div>
 
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-                  <LinkedinIcon className="w-4 h-4 text-blue-400" />
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#881832]">
+                  <LinkedinIcon className="w-4 h-4 text-[#701026]" />
                 </span>
                 <input
                   type="text"
@@ -357,13 +385,13 @@ export default function EditMemberModal({
                   value={formData.linkedin}
                   onChange={handleChange}
                   placeholder="LinkedIn (username or URL)"
-                  className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-blue-500 light:bg-white light:border-slate-300 light:text-slate-900"
+                  className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F4CCD5] text-xs text-[#3B0511] focus:outline-none focus:border-[#701026] dark:bg-[#150206] dark:border-[#580B1C] dark:text-white"
                 />
               </div>
 
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-                  <Mail className="w-4 h-4 text-emerald-400" />
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#881832]">
+                  <Mail className="w-4 h-4 text-[#701026]" />
                 </span>
                 <input
                   type="email"
@@ -371,13 +399,13 @@ export default function EditMemberModal({
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Email (e.g. member@klu.ac.in)"
-                  className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-blue-500 light:bg-white light:border-slate-300 light:text-slate-900"
+                  className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F4CCD5] text-xs text-[#3B0511] focus:outline-none focus:border-[#701026] dark:bg-[#150206] dark:border-[#580B1C] dark:text-white"
                 />
               </div>
 
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-                  <Phone className="w-4 h-4 text-purple-400" />
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-[#881832]">
+                  <Phone className="w-4 h-4 text-[#701026]" />
                 </span>
                 <input
                   type="tel"
@@ -385,18 +413,18 @@ export default function EditMemberModal({
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="Phone (e.g. +91 9876543210)"
-                  className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white focus:outline-none focus:border-blue-500 light:bg-white light:border-slate-300 light:text-slate-900"
+                  className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-[#FFF5F7] border border-[#F4CCD5] text-xs text-[#3B0511] focus:outline-none focus:border-[#701026] dark:bg-[#150206] dark:border-[#580B1C] dark:text-white"
                 />
               </div>
             </div>
           </div>
 
           {/* Modal Footer Buttons */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-800 light:border-slate-200">
+          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-[#F4CCD5] dark:border-[#580B1C]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-colors cursor-pointer light:bg-slate-100 light:text-slate-700 light:hover:bg-slate-200"
+              className="px-4 py-2.5 rounded-xl bg-[#FFF5F7] hover:bg-[#FCE7EB] text-[#580B1C] text-xs font-semibold transition-colors cursor-pointer dark:bg-[#3B0511] dark:text-[#E8A5B3] dark:hover:text-white"
             >
               Cancel
             </button>
@@ -404,12 +432,12 @@ export default function EditMemberModal({
             <button
               type="submit"
               disabled={saving || uploadingPhoto}
-              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-blue-600/30 disabled:opacity-50 transition-all cursor-pointer"
+              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#701026] to-[#580B1C] hover:from-[#580B1C] hover:to-[#3B0511] text-white text-xs font-semibold shadow-md shadow-[#701026]/30 disabled:opacity-50 transition-all cursor-pointer"
             >
               {saving ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Saving to Database...</span>
+                  <span>Saving...</span>
                 </>
               ) : (
                 <>
