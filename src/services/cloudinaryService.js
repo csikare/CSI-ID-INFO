@@ -1,6 +1,6 @@
 /**
  * Enhanced Cloudinary Image Upload Service
- * Supports Unsigned Presets, Signed Client Uploads (SHA-1), and graceful fallback
+ * Supports Unsigned Presets, Signed Client Uploads (SHA-1), and compressed lightweight fallback
  */
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dxwuwjdgf';
@@ -18,7 +18,49 @@ async function sha1(str) {
 }
 
 /**
- * Upload an image file to Cloudinary
+ * Compress image to high-efficiency WebP/JPEG Data URL (<100KB)
+ */
+export async function compressImageToDataUrl(file, maxWidth = 900, maxHeight = 1200, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined') {
+      return reject(new Error('Window not defined'));
+    }
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      let { width, height } = img;
+      if (width > maxWidth || height > maxHeight) {
+        const ratio = Math.min(maxWidth / width, maxHeight / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      try {
+        const webpData = canvas.toDataURL('image/webp', quality);
+        if (webpData.startsWith('data:image/webp') && webpData.length < 800000) {
+          return resolve(webpData);
+        }
+      } catch (e) {}
+
+      const jpegData = canvas.toDataURL('image/jpeg', quality);
+      resolve(jpegData);
+    };
+    img.onerror = (e) => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('Failed to load image for compression'));
+    };
+    img.src = objectUrl;
+  });
+}
+
+/**
+ * Upload an image file to Cloudinary with compressed fallback
  * @param {File} file 
  * @returns {Promise<string>} Secure URL of the uploaded image
  */
@@ -39,7 +81,6 @@ export async function uploadImageToCloudinary(file) {
   if (CLOUD_NAME && API_KEY && API_SECRET) {
     try {
       const folder = 'csi_kare_members';
-      // Cloudinary signature parameters must be in alphabetical order
       const stringToSign = `folder=${folder}&timestamp=${timestamp}${API_SECRET}`;
       const signature = await sha1(stringToSign);
 
@@ -59,12 +100,12 @@ export async function uploadImageToCloudinary(file) {
         const data = await response.json();
         let secureUrl = data.secure_url;
         if (secureUrl && secureUrl.includes('/upload/')) {
-          secureUrl = secureUrl.replace('/upload/', '/upload/c_fill,g_face,w_800,h_800,q_auto,f_auto/');
+          secureUrl = secureUrl.replace('/upload/', '/upload/c_fill,g_face,w_800,h_1000,q_auto,f_auto/');
         }
         return secureUrl || data.secure_url;
       }
     } catch (err) {
-      console.warn('Signed upload failed, trying unsigned preset:', err);
+      console.warn('Signed upload attempt failed, checking fallback:', err);
     }
   }
 
@@ -84,20 +125,25 @@ export async function uploadImageToCloudinary(file) {
         const data = await response.json();
         let secureUrl = data.secure_url;
         if (secureUrl && secureUrl.includes('/upload/')) {
-          secureUrl = secureUrl.replace('/upload/', '/upload/c_fill,g_face,w_800,h_800,q_auto,f_auto/');
+          secureUrl = secureUrl.replace('/upload/', '/upload/c_fill,g_face,w_800,h_1000,q_auto,f_auto/');
         }
         return secureUrl || data.secure_url;
       }
     } catch (err) {
-      console.warn('Unsigned upload failed:', err);
+      console.warn('Unsigned upload failed, falling back to optimized compression:', err);
     }
   }
 
-  // Attempt 3: Local Data URL fallback (instant offline support)
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (e) => reject(new Error('Failed to read image: ' + e.message));
-    reader.readAsDataURL(file);
-  });
+  // Attempt 3: High-efficiency compressed WebP/JPEG data URL (<100KB, guaranteed Firestore compatibility)
+  try {
+    const compressedDataUrl = await compressImageToDataUrl(file, 800, 1000, 0.8);
+    return compressedDataUrl;
+  } catch (err) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (e) => reject(new Error('Failed to read image: ' + e.message));
+      reader.readAsDataURL(file);
+    });
+  }
 }

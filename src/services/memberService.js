@@ -139,6 +139,7 @@ export async function createMember(memberData) {
       await setDoc(docRef, newRecord);
     } catch (err) {
       console.error('Firestore create error:', err);
+      throw new Error('Database write error: ' + (err.message || 'Failed to save to Firestore'));
     }
   }
 
@@ -174,6 +175,7 @@ export async function updateMember(memberId, updatedFields) {
       await setDoc(docRef, payload, { merge: true });
     } catch (err) {
       console.error('Firestore update error:', err);
+      throw new Error('Database write error: ' + (err.message || 'Failed to update in Firestore'));
     }
   }
 
