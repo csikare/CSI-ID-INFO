@@ -29,6 +29,14 @@ export default function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/admin/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } 
+            />
 
             {/* Invalid route fallback */}
             <Route path="/404" element={<InvalidProfile />} />
