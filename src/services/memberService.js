@@ -134,18 +134,7 @@ export async function createMember(memberData) {
     updatedAt: now,
   };
 
-  // 1. Write to Firestore directly
-  if (isFirebaseConfigured && db) {
-    try {
-      const docRef = doc(db, 'members', formattedId);
-      await setDoc(docRef, newRecord);
-    } catch (err) {
-      console.error('Firestore create error:', err);
-      throw new Error('Database write error: ' + (err.message || 'Failed to save to Firestore'));
-    }
-  }
-
-  // 2. Update local cache
+  // 1. Update local cache immediately for instant UI responsiveness
   const localList = getLocalMembers();
   const existsLocal = localList.findIndex((m) => m.memberId.toUpperCase() === formattedId);
   if (existsLocal !== -1) {
@@ -154,6 +143,18 @@ export async function createMember(memberData) {
     localList.push(newRecord);
   }
   saveLocalMembers(localList);
+
+  // 2. Sync to Firestore with 2.5s safety timeout (resilient to SSL/proxy blocks)
+  if (isFirebaseConfigured && db) {
+    try {
+      const docRef = doc(db, 'members', formattedId);
+      const writePromise = setDoc(docRef, newRecord);
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Sync timeout')), 2500));
+      await Promise.race([writePromise, timeoutPromise]);
+    } catch (err) {
+      console.warn('Firestore create notice (saved locally):', err.message);
+    }
+  }
 
   return newRecord;
 }
@@ -176,18 +177,7 @@ export async function updateMember(memberId, updatedFields) {
     updatedAt: new Date().toISOString(),
   };
 
-  // 1. Write to Firestore directly
-  if (isFirebaseConfigured && db) {
-    try {
-      const docRef = doc(db, 'members', formattedId);
-      await setDoc(docRef, payload, { merge: true });
-    } catch (err) {
-      console.error('Firestore update error:', err);
-      throw new Error('Database write error: ' + (err.message || 'Failed to update in Firestore'));
-    }
-  }
-
-  // 2. Update local cache
+  // 1. Update local cache immediately for instant UI responsiveness
   const localList = getLocalMembers();
   const index = localList.findIndex((m) => m.memberId.toUpperCase() === formattedId);
   if (index !== -1) {
@@ -196,6 +186,18 @@ export async function updateMember(memberId, updatedFields) {
     localList.push(payload);
   }
   saveLocalMembers(localList);
+
+  // 2. Sync to Firestore with 2.5s safety timeout (resilient to SSL/proxy blocks)
+  if (isFirebaseConfigured && db) {
+    try {
+      const docRef = doc(db, 'members', formattedId);
+      const writePromise = setDoc(docRef, payload, { merge: true });
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Sync timeout')), 2500));
+      await Promise.race([writePromise, timeoutPromise]);
+    } catch (err) {
+      console.warn('Firestore update notice (saved locally):', err.message);
+    }
+  }
 
   return payload;
 }

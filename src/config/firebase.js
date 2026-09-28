@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -25,7 +25,13 @@ let auth = null;
 if (isFirebaseConfigured) {
   try {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-    db = getFirestore(app);
+    try {
+      db = initializeFirestore(app, {
+        experimentalAutoDetectLongPolling: true,
+      });
+    } catch {
+      db = getFirestore(app);
+    }
     auth = getAuth(app);
   } catch (error) {
     console.warn("Firebase initialization warning (falling back to local storage):", error);
